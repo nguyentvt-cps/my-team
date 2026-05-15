@@ -1,0 +1,1238 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debut Nhóm Phân Tích Vận Hành (OA)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+	
+	<script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            navy: '#1e293b',
+                            light: '#f8fafc',
+                            accent: '#C5A059',
+                            gold: '#C5A059',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+	
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0F172A; }
+		::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f5f9; }
+        ::-webkit-scrollbar-thumb { background: #C5A059; border-radius: 10px; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 400px; }
+        }
+        .hero-gradient { background: linear-gradient(135deg, #1E3A8A 0%, #00B4D8 100%); }
+        .text-accent { color: #FF6B35; }
+        .bg-accent { background-color: #FF6B35; }
+        .card-hover { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        
+        /* Navigation & Animation classes from new 9.html */
+        .nav-item.active {
+            background-color: #eff6ff;
+            color: #1E3A8A;
+            font-weight: 600;
+            border-right: 4px solid #1E3A8A;
+        }
+		
+		/* Styles cho Tab Architecture từ new 9.html */
+        .arch-btn.active { 
+			background-color: #1E3A8A; 
+			color: white; 
+			border-color: #1E3A8A; 
+		}
+		
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out forwards;
+        }
+		
+		.hover-lift {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .hover-lift:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+
+        .animate-spin-slow {
+            animation: spin 8s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+		
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+		
+		/* ----- KPI Styles ----- */
+        .section-card {
+            background: white;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 0.5rem;
+        }
+
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-container th {
+            background-color: #f1f5f9;
+            text-align: left;
+            padding: 1rem;
+            font-weight: 600;
+        }
+
+        .table-container td {
+            padding: 1rem;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .formula-box {
+            background: #f0f9ff;
+            border: 2px dashed #0ea5e9;
+            border-radius: 1rem;
+        }
+
+        .timeline-step {
+            position: relative;
+            padding-left: 2.5rem;
+        }
+
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #e2e8f0;
+        }
+
+        .timeline-step::after {
+            content: '';
+            position: absolute;
+            left: -6px;
+            top: 0;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #0ea5e9;
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px #0ea5e9;
+        }
+
+        .badge-plus { background: #dcfce7; color: #166534; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-weight: 600; }
+        .badge-minus { background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 0.25rem; font-weight: 600; }
+        
+        .tool-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            font-size: 1.25rem;
+        }
+
+        .star-container {
+            position: relative;
+            width: 100%;
+            height: 700px;
+            margin: 2rem 0;
+        }
+
+        .star-item {
+            position: absolute;
+            width: 280px;
+            z-index: 10;
+            transform: translate(-50%, -50%);
+        }
+
+        .central-hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px;
+            height: 120px;
+            background: white;
+            border: 4px solid #f1f5f9;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 30px rgba(14, 165, 233, 0.2);
+            z-index: 5;
+        }
+
+        .star-line {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        @media (max-width: 1023px) {
+            .star-container { display: none; }
+            .mobile-grid { display: grid; }
+        }
+
+        @media (min-width: 1024px) {
+            .mobile-grid { display: none; }
+    </style>	
+</head>
+<body class="antialiased flex flex-col md:flex-row min-h-screen">
+
+    <aside class="w-full md:w-64 bg-white shadow-lg z-10 flex flex-col fixed md:sticky top-0 md:h-screen">
+        <div class="p-6 border-b border-gray-100 flex items-center gap-3">
+            <span class="text-3xl">⚙️</span>
+            <div>
+                <h1 class="font-bold text-lg text-[#1E3A8A] leading-tight">Nhóm OA</h1>
+                <p class="text-xs text-gray-500">Phân Tích Vận Hành</p>
+            </div>
+        </div>
+        <nav class="flex-1 overflow-y-auto py-4 flex flex-col md:block" id="main-nav">
+            <button data-target="tab-vision" class="nav-item active w-full text-left px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-3">
+                <span class="text-xl">🎯</span> Tầm Nhìn & Sứ Mệnh
+            </button>
+            <button data-target="tab-strategy" class="nav-item w-full text-left px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-3">
+                <span class="text-xl">🗺️</span> Chiến Lược Thực hiện
+            </button>
+            <button data-target="tab-structure" class="nav-item w-full text-left px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-3">
+                <span class="text-xl">🧩</span> Cấu Trúc & Nhiệm Vụ
+            </button>
+			<button data-target="tab-planning" class="nav-item w-full text-left px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-3">
+                <span class="text-xl">🗂️</span> Kế hoạch 2026+
+            </button>
+			<button data-target="tab-kpi" class="nav-item w-full text-left px-6 py-3 text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-3">
+                <span class="text-xl">🧮</span> Khung đánh giá KPI
+            </button>
+        </nav>
+    </aside>
+
+    <main class="flex-1 overflow-y-auto h-screen bg-[#F8FAFC]">
+        
+        <div id="tab-vision" class="content-section block fade-in pb-16">
+            <header class="hero-gradient text-white py-20 px-6 text-center shadow-md mb-16 mt-0">
+                <div class="max-w-4xl mx-auto">
+                    <div class="text-6xl mb-4">🧠 ⚙️ 📊</div>
+                    <h1 class="text-4xl md:text-4xl font-extrabold mb-6 tracking-tight">TẦM NHÌN & SỨ MỆNH</h1>
+                    <h2 class="text-xl md:text-2xl font-light mb-8 opacity-90">Nhóm Phân Tích Vận Hành (OA)</h2>
+                    <div class="inline-block bg-white text-[#1E3A8A] px-8 py-3 rounded-full font-bold text-lg shadow-lg">
+                        Dẫn dắt bởi dữ liệu ➖ Định hướng bởi quyết định ➖ Tập trung vào hành động
+                    </div>
+                </div>
+            </header>
+
+            <div class="max-w-6xl mx-auto px-6 space-y-24">
+                <section>
+                    <div class="text-center max-w-3xl mx-auto mb-12">
+                        <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4">Tầm Nhìn</h2>
+                        <p class="text-lg md:text-lg font-medium leading-relaxed">
+                            Trở thành <strong class="text-blue-600">"Hệ điều hành"</strong> hỗ trợ dẫn dắt mọi quyết định vận hành thông qua dữ liệu.
+                        </p>
+                    </div>		
+                </section>
+                
+                <section>
+					<div class="text-center max-w-3xl mx-auto mb-12">
+						<h2 class="text-3xl font-bold text-[#1E3A8A] mb-4">Sứ Mệnh</h2>
+						<p class="text-gray-600 text-lg">Kiến tạo đội ngũ phân tích tự chủ dựa trên quy trình vận hành tiêu chuẩn (SOP), làm chủ công nghệ và tư duy quản trị để cung cấp giải pháp thực thi đột phá.</p>
+					</div>
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+						<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 card-hover">
+							<div class="absolute top-0 right-0 w-24 h-24 bg-[#f080b8] opacity-10 rounded-bl-full"></div>
+							<div class="text-5xl mb-4">🚀</div>
+							<h3 class="text-xl font-bold text-[#1E3A8A] mb-3">Năng Lực Tự Chủ</h3>
+							<p class="text-gray-600 leading-relaxed">Xây dựng đội ngũ chuyên viên làm việc độc lập. Giảm phụ thuộc vào quản lý trực tiếp nhờ hệ thống quy trình bài bản và chuẩn mực.</p>
+						</div>
+						<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 card-hover">
+							<div class="absolute top-0 right-0 w-24 h-24 bg-[#00B4D8] opacity-10 rounded-bl-full"></div>
+							<div class="text-5xl mb-4">🧬</div>
+							<h3 class="text-xl font-bold text-[#1E3A8A] mb-3">Làm Chủ Bộ Gen (DNA)</h3>
+							<p class="text-gray-600 leading-relaxed">Kết hợp nhuần nhuyễn giữa sức mạnh công nghệ (Tools/Data) và bản lĩnh tư duy quản trị (Business Mindset).</p>
+						</div>
+						<div class="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 card-hover">
+							<div class="absolute top-0 right-0 w-24 h-24 bg-[#a3ac3e] opacity-10 rounded-bl-full"></div>
+							<div class="text-5xl mb-4">💡</div>
+							<h3 class="text-xl font-bold text-[#1E3A8A] mb-3">Giá Trị Thực Chất</h3>
+							<p class="text-gray-600 leading-relaxed">Chuyển đổi từ vai trò "người mô tả" (Reporting) sang "người giải quyết vấn đề" (Problem Solver).</p>
+						</div>
+					</div>
+				</section>
+				
+				<section class="bg-white rounded-3xl p-8 md:p-12 shadow-md border border-gray-200">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div>
+                            <div class="inline-block bg-[#00B4D8]/10 text-[#00B4D8] px-4 py-1 rounded-full text-sm font-bold tracking-wide mb-4">MỤC TIÊU TỐI ƯU</div>
+                            <h2 class="text-3xl font-bold text-[#1E3A8A] mb-6">Chuyển Dịch Phân Bổ Thời Gian</h2>
+                            <p class="text-gray-600 text-lg mb-6 leading-relaxed">
+                                Cốt lõi của việc chuyển đổi thành <strong>"Hệ điều hành"</strong> là việc cắt giảm các tác vụ thủ công, lặp lại. Mục tiêu chiến lược là chuyển đổi <strong>75% thời gian</strong> thao tác thủ công sang thời gian phân tích chuyên sâu và đưa ra hành động thực tiễn.
+                            </p>
+                            <ul class="space-y-4">
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-3 text-xl">✔</span>
+                                    <span class="text-gray-700">Loại bỏ báo cáo, thao tác thủ công qua hệ thống tự động.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-3 text-xl">✔</span>
+                                    <span class="text-gray-700">Cảnh báo thông minh thay cho việc tìm kiếm lỗi chủ động.</span>
+                                </li>
+                                <li class="flex items-start">
+                                    <span class="text-green-500 mr-3 text-xl">✔</span>
+                                    <span class="text-gray-700">Tập trung nguồn lực vào việc đưa ra Actionable Analysis.</span>
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                            <div class="chart-container">
+                                <canvas id="timeShiftChart"></canvas>
+                            </div>
+                            <p class="text-center text-sm text-gray-500 mt-4 italic">Biểu đồ so sánh cấu trúc phân bổ thời gian trước và <br> sau khi tối ưu</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div id="tab-planning" class="content-section hidden fade-in py-16 pt-24 md:pt-16">
+            <div class="max-w-5xl mx-auto px-6">
+                <header class="mb-12 text-center">
+                    <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4">Lộ trình kiến tạo Mô hình 3 lớp</h2>
+                    <p class="text-gray-600 text-lg">Mục tiêu giải quyết vấn đề bằng mô hình công nghệ tinh gọn. Xây dựng hạ tầng kỹ thuật 3 lớp, từ việc tạo ra nền tảng số liệu duy nhất (dbt), điều phối luồng xử lý (Airflow), đến tự động hóa hành động (n8n).</p>
+                </header>
+
+                <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden">
+                    <div class="flex flex-col sm:flex-row border-b border-gray-100 bg-gray-50 p-2 gap-2" id="arch-tabs">
+                        <button data-arch="dbt" class="arch-btn active flex-1 py-4 px-4 rounded-2xl font-bold transition-all text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-2">
+                            <img src="C:\Users\S06386\Downloads\dbt.png" alt="dbT Icon" class="h-10 w-auto object-contain"> 1. Lớp nền tảng (dbt)
+                        </button>
+                        <button data-arch="airflow" class="arch-btn flex-1 py-4 px-4 rounded-2xl font-bold transition-all text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-2">
+                            <img src="C:\Users\S06386\Downloads\airflow.png" alt="dbT Icon" class="h-7 w-auto object-contain"> 2. Lớp điều phối (Airflow)
+                        </button>
+                        <button data-arch="n8n" class="arch-btn flex-1 py-4 px-4 rounded-2xl font-bold transition-all text-gray-600 hover:bg-gray-200 flex items-center justify-center gap-2">
+                            <img src="C:\Users\S06386\Downloads\n8n.png" alt="dbT Icon" class="h-10 w-auto object-contain"> 3. Lớp hành động (n8n)
+                        </button>
+                    </div>
+                    <div class="p-10 min-h-[400px] flex items-center justify-center bg-white" id="arch-content">
+                        </div>
+                </div>
+				
+				<section id="project1" class="py-24 relative">
+					<div class="container mx-auto px-6">
+						<div class="flex flex-col md:flex-row items-center gap-16">
+							<div class="w-full md:w-1/2">
+								<span class="text-brand-gold font-bold tracking-widest text-lg uppercase">Dự án 1</span>
+								<h2 class="text-4xl font-heading font-bold text-brand-navy mt-4 mb-6">Health-check OA</h2>
+								<p class="text-lg text-slate-500 mb-8 leading-relaxed">
+									Xây dựng một <span class="text-brand-navy font-semibold">"báo cáo kiểm định"</span> nội bộ để đảm bảo mọi sản phẩm dữ liệu ra đời đều đạt chuẩn và đội ngũ nhân sự không ngừng cải tiến, phát triển. Nội dung tập trung vào 3 khía cạnh:
+								</p>
+								
+								<div class="space-y-6">
+									<div class="flex items-start space-x-4 p-4 rounded-2xl transition-colors hover:bg-white">
+										<div class="w-12 h-12 rounded-lg bg-white flex-shrink-0 flex items-center justify-center text-brand-gold border border-slate-100 shadow-sm">
+											<i class="fa-solid fa-shield-halved text-xl"></i>
+										</div>
+										<div>
+											<h4 class="text-brand-navy font-bold mb-1 text-lg">Chất lượng (Quality Check)</h4>
+											<p class="text-sm text-slate-500 leading-relaxed">Loại bỏ hoàn toàn sai số liệu do lỗi kỹ thuật và đảm bảo tính vẹn toàn dữ liệu. Nâng cao chất lượng trải nghiệm người dùng qua giao diện, tốc độ.</p>
+										</div>
+									</div>
+									<div class="flex items-start space-x-4 p-4 rounded-2xl transition-colors hover:bg-white">
+										<div class="w-12 h-12 rounded-lg bg-white flex-shrink-0 flex items-center justify-center text-brand-gold border border-slate-100 shadow-sm">
+											<i class="fa-solid fa-gauge-high text-xl"></i>
+										</div>
+										<div>
+											<h4 class="text-brand-navy font-bold mb-1 text-lg">Hiệu suất (Performance Tracking)</h4>
+											<p class="text-sm text-slate-500 leading-relaxed">Giám sát tiến độ hoàn thành qua hệ thống tập trung. Đo lường tốc độ xử lý và tỷ lệ chuyển đổi yêu cầu từ các phòng ban.</p>
+										</div>
+									</div>
+									<div class="flex items-start space-x-4 p-4 rounded-2xl transition-colors hover:bg-white">
+										<div class="w-12 h-12 rounded-lg bg-white flex-shrink-0 flex items-center justify-center text-brand-gold border border-slate-100 shadow-sm">
+											<i class="fa-solid fa-graduation-cap text-xl"></i>
+										</div>
+										<div>
+											<h4 class="text-brand-navy font-bold mb-1 text-lg">Năng lực (Skill Mapping & Upgrade)</h4>
+											<p class="text-sm text-slate-500 leading-relaxed">Xây  dựng Ma trận kỹ năng (SQL, Python, Business Sense) và sử dụng các "Case study" thực tế để đào tạo chéo giúp đội ngũ giảm phụ thuộc vào cá nhân và tăng tính kế thừa.</p>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="w-full md:w-1/2 relative">
+								<div class="absolute -inset-4 bg-brand-gold/5 rounded-3xl blur-2xl"></div>
+								<img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80" alt="Analytics Excellence" class="relative rounded-2xl shadow-xl border-8 border-white">
+								<div class="absolute -bottom-6 -left-6 bg-white p-6 rounded-xl border-l-4 border-brand-gold shadow-2xl max-w-xs">
+									<p class="text-brand-navy italic font-medium">Giá trị mang lại: sự tín nhiệm, tin tưởng vào độ chính xác của báo cáo. Tối ưu, nắm rõ hiệu suất làm việc của từng chuyên viên DA.</p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</section>
+
+				<section id="project2" class="py-24 bg-white rounded-3xl relative">
+					<div class="container mx-auto px-6">
+						<div class="text-center max-w-3xl mx-auto mb-16">
+							<span class="text-brand-gold font-bold tracking-widest text-lg uppercase">Dự án 2</span>
+							<h2 class="text-4xl md:text-5xl font-heading font-bold text-brand-navy mt-4 mb-6">Health-check OP</h2>
+							<p class="text-slate-500 text-lg">Trở thành "Bảng điều khiển" cho COO và là "kết quả chuẩn đoán" cho phòng Tối ưu Vận hành để đánh giá được sức khỏe hệ thống.</p>
+						</div>
+
+						<div class="grid md:grid-rows-2 md:grid-cols-3 gap-8">
+							<!-- Power Duo Card -->
+							<div class="md:col-span-2 bg-slate-50 p-8 rounded-3xl hover-lift border border-slate-100">
+								<div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+									<h3 class="text-2xl font-bold text-brand-navy flex items-center">
+										<i class="fa-solid fa-user-group text-brand-gold mr-3"></i> Mô hình "The Power Duo"
+									</h3>
+									<div class="px-4 py-1 bg-brand-navy text-white rounded-full text-xs font-bold uppercase tracking-wider">Hợp tác chiến lược</div>
+								</div>
+								<div class="grid md:grid-cols-2 gap-8">
+									<div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+										<div class="text-brand-gold mb-3 font-bold uppercase text-xs">Phân tích Vận hành</div>
+										<h4 class="text-brand-navy text-xl font-bold mb-2">Bác sĩ chẩn đoán</h4>
+										<p class="text-sm text-slate-500">Tìm ra các điểm nghẽn (bottlenecks) và quy trình gây lãng phí dựa trên dữ liệu. Phân tích các biến động đưa ra cảnh báo.</p>
+									</div>
+									<div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm">
+										<div class="text-brand-gold mb-3 font-bold uppercase text-xs">Tối ưu Vận hành</div>
+										<h4 class="text-brand-navy text-xl font-bold mb-2">Kỹ sư thực thi</h4>
+										<p class="text-sm text-slate-500">Tìm hiểu vận hành thực tế, đề xuất cải tiến quy trình, quy định và triển khai hệ thống dựa trên dữ liệu chuẩn đoán.</p>
+									</div>
+								</div>
+							</div>
+
+							<!-- Index Card -->
+							<div class="bg-brand-navy p-8 rounded-3xl hover-lift flex flex-col justify-center items-center text-center text-white">
+								<div class="w-24 h-24 rounded-full border-4 border-brand-gold border-t-transparent animate-spin-slow flex items-center justify-center mb-6">
+									<span class="text-3xl font-bold text-brand-gold">98%</span>
+								</div>
+								<h4 class="font-bold text-xl mb-2">Operational Excellence</h4>
+								<p class="text-sm text-slate-400">Báo cáo tổng hợp giúp đánh giá toàn diện sức khỏe hệ thống.</p>
+							</div>
+
+							<!-- KPI Cards -->
+							<div class="bg-white p-8 rounded-3xl hover-lift border border-slate-100 shadow-sm border-t-4 border-t-brand-gold">
+								<i class="fa-solid fa-chart-pie text-brand-gold text-4xl mb-6"></i>
+								<h4 class="text-brand-navy font-bold text-xl mb-4">Hiệu quả thực thi</h4>
+								<p class="text-sm text-slate-500 leading-relaxed">Đo lường tỷ lệ đạt target các chỉ số vận hành, kinh doanh tại hệ thống cửa hàng.</p>
+							</div>
+							<div class="bg-white p-8 rounded-3xl hover-lift border border-slate-100 shadow-sm border-t-4 border-t-brand-gold">
+								<i class="fa-solid fa-wand-magic-sparkles text-brand-gold text-4xl mb-6"></i>
+								<h4 class="text-brand-navy font-bold text-xl mb-4">Dự báo & Đề xuất</h4>
+								<p class="text-sm text-slate-500 leading-relaxed">Chỉ rõ nguyên nhân và đưa ra dự báo hoặc giải pháp cụ thể thay vì chỉ mô tả số liệu.</p>
+							</div>
+							<div class="bg-white p-8 rounded-3xl hover-lift border border-slate-100 shadow-sm border-t-4 border-t-brand-gold">
+								<i class="fa-solid fa-bolt-lightning text-brand-gold text-4xl mb-6"></i>
+								<h4 class="text-brand-navy font-bold text-xl mb-4">Cảnh báo tức thì</h4>
+								<p class="text-sm text-slate-500 leading-relaxed">Gửi cảnh báo ngay khi các chỉ số sức khỏe rơi vào vùng nguy hiểm qua hệ thống tự động hóa.</p>
+							</div>
+						</div>
+					</div>
+				</section>
+            </div>
+        </div>
+
+        <div id="tab-strategy" class="content-section hidden fade-in py-16 pt-24 md:pt-16">
+            <div class="max-w-6xl mx-auto px-6 space-y-24">
+                <section>
+                    <div class="text-center max-w-3xl mx-auto mb-16">
+                        <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4">Chiến Lược Thực Hiện</h2>
+                        <p class="text-gray-600 text-lg">Để hiện thực hóa Tầm nhìn và Sứ mệnh, nhóm tập trung vào 3 mũi nhọn được thiết kế theo một chuỗi giá trị liên kết chặt chẽ.</p>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row justify-between items-stretch gap-6 relative">
+                        <div class="hidden lg:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-[#1E3A8A] via-[#00B4D8] to-[#FF6B35] -z-10 transform -translate-y-1/2"></div>
+                        
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#1E3A8A] relative z-10 flex flex-col">
+                            <div class="w-16 h-16 bg-[#1E3A8A] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">1</div>
+                            <h3 class="text-2xl font-bold text-[#1E3A8A] mb-2">Chuẩn Hóa</h3>
+                            <p class="text-sm text-gray-400 font-medium mb-4 uppercase tracking-widest">Standardization</p>
+                            <div class="flex-grow">
+                                <p class="text-gray-700 mb-4"><strong>Data Modeling:</strong> Xây dựng cấu trúc dữ liệu thống nhất và chuẩn mực cho toàn hệ thống vận hành.</p>
+                                <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-[#1E3A8A]">
+                                    <p class="text-sm font-semibold text-[#1E3A8A] mb-1">MỤC TIÊU:</p>
+                                    <p class="text-sm text-gray-600">Đảm bảo "Single Version of Truth" trong mọi báo cáo.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#00B4D8] relative z-10 flex flex-col mt-8 lg:mt-0 lg:transform lg:-translate-y-8">
+                            <div class="w-16 h-16 bg-[#00B4D8] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">2</div>
+                            <h3 class="text-2xl font-bold text-[#00B4D8] mb-2">Tối Ưu</h3>
+                            <p class="text-sm text-gray-400 font-medium mb-4 uppercase tracking-widest">Optimization</p>
+                            <div class="flex-grow">
+                                <p class="text-gray-700 mb-4"><strong>Tự động hóa:</strong> Cắt giảm triệt để các tác vụ thủ công, lặp lại gây lãng phí nguồn lực và tài nguyên.</p>
+                                <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-[#00B4D8]">
+                                    <p class="text-sm font-semibold text-[#00B4D8] mb-1">MỤC TIÊU:</p>
+                                    <p class="text-sm text-gray-600">Chuyển đổi 75% thời gian thao tác thủ công thành thời gian phân tích và hành động.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#FF6B35] relative z-10 flex flex-col">
+                            <div class="w-16 h-16 bg-[#FF6B35] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">3</div>
+                            <h3 class="text-2xl font-bold text-[#FF6B35] mb-2">Thực Thi</h3>
+                            <p class="text-sm text-gray-400 font-medium mb-4 uppercase tracking-widest">Execution</p>
+                            <div class="flex-grow">
+                                <p class="text-gray-700 mb-4"><strong>Giải pháp hóa:</strong> Mọi kết quả đầu ra của nhóm phải là giải pháp vận hành cụ thể.</p>
+                                <div class="bg-slate-50 p-4 rounded-lg border-l-4 border-[#FF6B35]">
+                                    <p class="text-sm font-semibold text-[#FF6B35] mb-1">MỤC TIÊU:</p>
+                                    <p class="text-sm text-gray-600">Không dừng lại ở mức mô tả dữ liệu. Mỗi con số đưa ra phải đi kèm phương án tối ưu.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="bg-[#1E3A8A] rounded-3xl p-8 md:p-12 shadow-xl text-white">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="order-2 lg:order-1 bg-white/5 p-4 rounded-2xl">
+                            <div class="chart-container">
+                                <canvas id="capabilityRadarChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="order-1 lg:order-2">
+                            <h2 class="text-3xl font-bold text-white mb-6">Hồ Sơ Năng Lực Đội Ngũ OA</h2>
+                            <p class="text-blue-200 text-lg mb-6 leading-relaxed">
+                                Sự chuyển dịch từ "Vận hành hỗ trợ" sang "Phân tích tự chủ" đòi hỏi một bước nhảy vọt về năng lực. Biểu đồ đánh giá sự mở rộng toàn diện của đội ngũ trên 5 chiều kích cốt lõi.
+                            </p>
+                            <div class="space-y-6">
+                                <div class="flex">
+                                    <div class="w-2 h-full bg-[#00B4D8] mr-4 rounded-full"></div>
+                                    <div>
+                                        <h4 class="font-bold text-lg">Giảm phụ thuộc quản lý</h4>
+                                        <p class="text-blue-200 mt-1">Thông qua việc nắm vững SOP và dữ liệu, mỗi chuyên viên trở thành một Decision Maker độc lập cho phạm vi phụ trách.</p>
+                                    </div>
+                                </div>
+                                <div class="flex">
+                                    <div class="w-2 h-full bg-[#FF6B35] mr-4 rounded-full"></div>
+                                    <div>
+                                        <h4 class="font-bold text-lg">Tư duy hệ thống dẫn dắt</h4>
+                                        <p class="text-blue-200 mt-1">Không chỉ cung cấp số liệu, đội ngũ kiến tạo ra các mô hình dự báo và định hướng chiến lược hành động trực tiếp cho khối vận hành.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div id="tab-structure" class="content-section hidden fade-in py-16 pt-24 md:pt-16">
+            <div class="max-w-6xl mx-auto px-6 space-y-16">
+                <section>
+                    <div class="relative bg-white rounded-3xl p-8 md:p-12 shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-gray-100 overflow-hidden">
+                        
+                        <div class="absolute top-0 left-0 w-full h-2.5 rounded-t-3xl bg-gradient-to-r from-[#0F9ED5] via-[#A02B93] to-[#E5C729]"></div>
+                        
+                        <div class="text-center mb-10">
+                            <h2 class="text-3xl font-bold text-[#1E3A8A]">Mảnh ghép Chuyên môn và Trách nhiệm</h2>
+                            <p class="text-gray-500 mt-2 text-lg">Phân vai chuyên biệt, nhất quán vận hành</p>
+                        </div>
+                        
+                        <div class="relative w-full max-w-5xl mx-auto group">
+                            <div class="absolute -inset-1 bg-gradient-to-r from-[#1E3A8A] to-[#00B4D8] rounded-2xl blur-md opacity-20 group-hover:opacity-40 transition duration-700 group-hover:duration-300"></div>
+                            
+                            <div class="relative rounded-2xl bg-white ring-1 ring-gray-200 shadow-xl overflow-hidden p-2 md:p-4">
+                                <div class="absolute inset-0 opacity-[0.03] bg-[radial-gradient(#1E3A8A_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                                <img src="C:\Program Files\Notepad++\SOW.png" alt="Sơ đồ cấu trúc đội ngũ Phân tích Vận hành" class="relative z-10 w-full h-auto object-contain rounded-xl hover:scale-[1.01] transition-transform duration-500 ease-out bg-white">
+                            </div>
+                        </div>
+                    
+                    </div>
+                </section>
+                
+                <section>
+                    <div class="text-center max-w-3xl mx-auto mb-16 pt-8">
+                        <h2 class="text-3xl font-bold text-[#1E3A8A] mb-4">Danh mục Nhiệm vụ</h2>
+                        <p class="text-gray-600 text-lg">Hỗ trợ Đa điểm – Quản trị Đa chiều – Phát triển Đa năng</p>
+                    </div>
+
+                    <div class="flex flex-col lg:flex-row justify-between items-stretch gap-6 relative">
+                        <div class="hidden lg:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-[#1E3A8A] via-[#00B4D8] to-[#FF6B35] -z-10 transform -translate-y-1/2"></div>
+                        
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#1E3A8A] relative z-10 flex flex-col">
+                            <div class="w-16 h-16 bg-[#1E3A8A] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#1E3A8A] mb-2">Thực hiện yêu cầu hỗ trợ phòng ban (Approvals)</h3>
+                            <p class="inline-block self-start px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-blue-100 mb-8">Service Excellence</p>
+                            
+                            <div class="flex-grow flex flex-col">
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#1E3A8A] shadow-[0_0_8px_rgba(30,58,138,0.6)] mr-2 animate-pulse"></span>Workspaces Power BI
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#1E3A8A] mr-2">✔</span>Tạo mới báo cáo theo yêu cầu</li>
+                                        <li class="flex items-start"><span class="text-[#1E3A8A] mr-2">✔</span>Điều chỉnh báo cáo đáp ứng nhu cầu theo dõi theo tình hình vận hành tại thời điểm/giai đoạn</li>
+                                        <li class="flex items-start"><span class="text-[#1E3A8A] mr-2">✔</span>Quản trị phân quyền xem và xuất dữ liệu cho toàn khối Vận hành</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#1E3A8A] shadow-[0_0_8px_rgba(30,58,138,0.6)] mr-2 animate-pulse"></span>Hỗ trợ Dữ liệu
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#1E3A8A] mr-2">✔</span>Cung cấp dữ liệu chính xác</li>
+                                        <li class="flex items-start"><span class="text-[#1E3A8A] mr-2">✔</span>Phân tích chuyên sâu hỗ trợ ra quyết định</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#00B4D8] relative z-10 flex flex-col mt-8 lg:mt-0 lg:transform lg:-translate-y-8">
+                            <div class="w-16 h-16 bg-[#00B4D8] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#00B4D8] mb-2">Quản trị định kỳ</h3>
+                            <p class="inline-block self-start px-3 py-1 bg-cyan-50 text-cyan-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-cyan-100 mb-8">Operations Compliance</p>
+                            
+                            <div class="flex-grow flex flex-col">
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#00B4D8] shadow-[0_0_8px_rgba(0,180,216,0.6)] mr-2 animate-pulse"></span>Duy trì Hạ tầng & Nghiệp vụ
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#00B4D8] mr-2">✔</span>Reset tài khoản PBI free</li>
+                                        <li class="flex items-start"><span class="text-[#00B4D8] mr-2">✔</span>Tổng hợp kết quả thưởng/phạt khối shop</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#00B4D8] shadow-[0_0_8px_rgba(0,180,216,0.6)] mr-2 animate-pulse"></span>Điều phối Mục tiêu
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#00B4D8] mr-2">✔</span>Phân chia các loại Target khối vận hành</li>
+                                        <li class="flex items-start"><span class="text-[#00B4D8] mr-2">✔</span>Lưu trữ kết quả dánh giá tháng</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex-1 bg-white p-8 rounded-2xl shadow-lg border-t-4 border-[#FF6B35] relative z-10 flex flex-col">
+                            <div class="w-16 h-16 bg-[#FF6B35] text-white rounded-full flex items-center justify-center text-2xl font-bold mb-6 shadow-md">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                            </div>
+                            <h3 class="text-xl font-bold text-[#FF6B35] mb-2">Tối ưu nguồn lực & Nâng tầm (Nội bộ nhóm)</h3>
+                            <p class="inline-block self-start px-3 py-1 bg-orange-50 text-orange-700 text-[10px] font-bold uppercase tracking-widest rounded-md border border-orange-100 mb-8">Development & Tech</p>
+                            
+                            <div class="flex-grow flex flex-col">
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#FF6B35] shadow-[0_0_8px_rgba(255,107,53,0.6)] mr-2 animate-pulse"></span>Kiểm soát Chất lượng
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#FF6B35] mr-2">✔</span>Health-check kết quả công việc & năng lực nhân sự</li>
+                                        <li class="flex items-start"><span class="text-[#FF6B35] mr-2">✔</span>Duy trì & Tối ưu các đầu mục báo cáo</li>
+                                    </ul>
+                                </div>
+                                
+                                <div class="mb-6">
+                                    <p class="text-gray-800 font-bold mb-3 flex items-center">
+                                        <span class="w-2 h-2 rounded-full bg-[#FF6B35] shadow-[0_0_8px_rgba(255,107,53,0.6)] mr-2 animate-pulse"></span>Nâng cấp Khả năng
+                                    </p>
+                                    <ul class="text-gray-600 text-sm space-y-2 pl-4 border-l-2 border-slate-100">
+                                        <li class="flex items-start"><span class="text-[#FF6B35] mr-2">✔</span>Phát triển và ứng dụng công nghệ: AI & Automation vào quy trình</li>
+                                        <li class="flex items-start"><span class="text-[#FF6B35] mr-2">✔</span>Tìm hiểu các bài toàn vận hành, cảnh báo rủi ro & đề xuất cải tiến</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+		
+		<div id="tab-kpi" class="content-section hidden fade-in pb-16">
+            <header class="py-20 hero-gradient text-white text-center shadow-md mb-16 mt-0">
+                <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <h1 class="text-4xl md:text-4xl font-extrabold mb-6 tracking-tight">Quy định đánh giá KPI</h1>
+                </div>
+            </header>
+
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
+                <section id="muc-tieu">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-sky-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">1. Mục tiêu chiến lược</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <div class="section-card p-8 border-l-4 border-sky-500">
+                            <div class="text-sky-500 text-4xl mb-4"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            <h3 class="text-xl font-bold mb-3 font-heading">Kịp thời & Chính xác</h3>
+                            <p class="text-slate-500 text-sm">Đảm bảo tính kịp thời và chính xác của dữ liệu phục vụ vận hành.</p>
+                        </div>
+                        <div class="section-card p-8 border-l-4 border-sky-500">
+                            <div class="text-sky-500 text-4xl mb-4"><i class="fa-solid fa-handshake"></i></div>
+                            <h3 class="text-xl font-bold mb-3 font-heading">Business Partner</h3>
+                            <p class="text-slate-500 text-sm">Nâng cao vai trò đồng hành của OA đối với từng phòng ban phụ trách.</p>
+                        </div>
+                        <div class="section-card p-8 border-l-4 border-sky-500">
+                            <div class="text-sky-500 text-4xl mb-4"><i class="fa-solid fa-bolt"></i></div>
+                            <h3 class="text-xl font-bold mb-3 font-heading">Chủ động & Tối ưu</h3>
+                            <p class="text-slate-500 text-sm">Khuyến khích sự chủ động và tối ưu hóa quy trình báo cáo.</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="trong-so">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-emerald-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">2. Phân loại & Trọng số</h2>
+                    </div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                        <div class="section-card p-8 order-2 lg:order-1">
+                            <div class="table-container">
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th>Nhóm công việc</th>
+                                            <th>Trọng số</th>
+                                            <th>Định nghĩa</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="font-bold text-sky-600">Công việc Chính</td>
+                                            <td class="font-bold text-sky-600">70%</td>
+                                            <td class="text-sm">Tạo mới và điều chỉnh báo cáo theo yêu cầu. (Lark Approvals)</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold text-emerald-600">Công việc Hỗ trợ</td>
+                                            <td class="font-bold text-emerald-600">20%</td>
+                                            <td class="text-sm">Xuất dữ liệu, hỗ trợ phân tích dữ liệu, cấp quyền báo cáo. (Lark Approvals) <br> Giải đáp thắc mắc về số liệu cho phòng ban, bảo trì báo cáo cũ.</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="font-bold text-amber-500">Feedback</td>
+                                            <td class="font-bold text-amber-500">10%</td>
+                                            <td class="text-sm">Điểm hài lòng từ cấp quản lý của phòng ban yêu cầu về thái độ và tư duy giải quyết vấn đề.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="order-1 lg:order-2 flex flex-col items-center">
+                            <svg viewBox="0 0 36 36" class="w-80 h-80">
+                                <path class="text-sky-500" stroke-dasharray="70, 100" stroke-width="6" stroke="currentColor" fill="transparent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="text-emerald-500" stroke-dasharray="20, 100" stroke-dashoffset="-70" stroke-width="6" stroke="currentColor" fill="transparent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <path class="text-amber-500" stroke-dasharray="10, 100" stroke-dashoffset="-90" stroke-width="6" stroke="currentColor" fill="transparent" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                <text x="18" y="20.35" class="text-[0.3rem] font-bold" text-anchor="middle" fill="#334155">KPI 100%</text>
+                            </svg>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="tieu-chi">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-amber-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">3. Tiêu chí đánh giá chi tiết</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="section-card p-8">
+                            <h3 class="text-xl font-bold mb-3 flex items-center gap-3 text-sky-600 font-heading">
+                                <i class="fa-solid fa-clock"></i> 3.1. Điểm Tiến độ (ST)
+                            </h3>
+							<p class="text-slate-500 text-sm">Áp dụng cho cả Công việc Chính và Hỗ trợ</p>
+                            <div class="table-container">
+                                <table>
+									<thead>
+                                        <tr>
+                                            <th>Thời gian hoàn thành</th>
+                                            <th>Điểm tiến độ</th>
+                                            <th>Ghi chú</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+											<td>Trước hạn > 1 ngày</td>
+											<td><span class="badge-plus">+1.1</span></td>
+											<td class="text-sm">Khuyến khích cho các task có sự đầu tư sớm.</td>
+										</tr>
+                                        <tr>
+											<td>Đúng hạn (Deadline)</td>
+											<td class="font-bold">1.0</td>
+											<td class="text-sm">Hoàn thành đầy đủ yêu cầu.</td>
+										</tr>
+                                        <tr>
+											<td>Trễ hạn <= 3 ngày </td>
+											<td><span class="badge-minus">0.5</span></td>
+											<td class="text-sm">Có thông báo lý do trước deadline 24h.</td>
+										</tr>
+                                        <tr>
+											<td>Trễ hạn > 3 ngày</td>
+											<td><span class="badge-minus">0</span></td>
+											<td class="text-sm">Gây ảnh hưởng trực tiếp đến vận hành.</td>
+										</tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="section-card p-8">
+                            <h3 class="text-xl font-bold mb-3 flex items-center gap-3 text-emerald-600 font-heading">
+                                <i class="fa-solid fa-square-check"></i> 3.2. Điểm Chất lượng (SQ)
+                            </h3>
+							<p class="text-slate-500 text-sm">Điểm chất lượng sẽ được cộng/trừ trực tiếp vào task Công việc chính.</p>
+                            <div class="space-y-4">
+                                <div class="bg-emerald-50 p-4 rounded-lg border-l-4 border-emerald-500">
+                                    <h4 class="font-bold text-emerald-700 text-sm">Điểm Cộng (+0.1)</h4>
+                                    <p class="text-xs text-emerald-800">Có đề xuất thêm các chỉ số (Insight) giá trị cho phòng ban mà trong yêu cầu ban đầu không có; Tối ưu hóa giúp báo cáo load nhanh hơn >30%.</p>
+                                </div>
+                                <div class="bg-rose-50 p-4 rounded-lg border-l-4 border-rose-500">
+                                    <h4 class="font-bold text-rose-700 text-sm">Điểm Trừ (-0.1)</h4>
+                                    <p class="text-xs text-rose-800">Báo cáo có sai sót về logic dữ liệu sau khi đã bàn giao; Format trình bày không đúng chuẩn brand guide của hệ thống.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section id="cong-thuc">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-sky-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">4. Công thức tính KPI</h2>
+                    </div>
+                    <div class="formula-box p-8 text-center shadow-inner">
+                        <p class="text-xl md:text-2xl font-bold text-sky-900 mb-2">
+                            KPI = (Avg(S<sub>Core</sub>) × 0.7) + (Avg(S<sub>Support</sub>) × 0.2) + (Avg(S<sub>Feedback</sub>) × 0.1)
+                        </p>
+                        <p class="text-xs text-slate-500 italic">* S<sub>Core</sub> = S<sub>T</sub> + S<sub>Q</sub> (Điểm tiến độ + Điểm chất lượng của task chính). <br>S<sub>Core</sub> = Điểm tiến độ của task hỗ trợ. <br>Feedback: 0-1</p>
+                    </div>
+                </section>
+
+                <section id="quy-trinh">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-slate-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">5. Quy trình vận hành Task</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+                        <div class="timeline-step">
+                            <h3 class="font-bold text-lg mb-2 text-sky-600">Bước 1: Ghi nhận Task</h3>
+                            <p class="text-slate-500 text-sm italic">Sử dụng <strong>Lark Approvals/Base</strong> để lưu vết yêu cầu hỗ trợ từ các phòng ban.</p>
+                        </div>
+                        <div class="timeline-step">
+                            <h3 class="font-bold text-lg mb-2 text-sky-600">Bước 2: Duyệt Deadline</h3>
+                            <p class="text-slate-500 text-sm italic">Chuyên viên OA tự thương lượng deadline với phòng ban dựa trên độ ưu tiên (Priority). <br> Trường hợp quá tải (Overload), nhân sự phải báo cáo Lead OA trong vòng 4h kể từ khi nhận task để điều chỉnh deadline hoặc điều phối nguồn lực.</p>
+                        </div>
+                        <div class="timeline-step">
+                            <h3 class="font-bold text-lg mb-2 text-sky-600">Bước 3: Phê duyệt</h3>
+                            <p class="text-slate-500 text-sm italic">Kết quả task chỉ được tính là hoàn thành khi có xác nhận "Đạt" từ Lead ODA (về mặt kỹ thuật) và Feedback từ User (về mặt sử dụng).</p>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-rose-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">6. Điểm Thưởng & Phạt</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="section-card p-8 border-t-8 border-emerald-500 bg-emerald-50/30">
+                            <h3 class="text-xl font-bold mb-2">Thưởng Nóng</h3>
+                            <p class="text-emerald-700 font-bold text-lg mb-2">Cộng 0.2 - 0.5 vào tổng KPI</p>
+                            <p class="text-slate-500 text-sm italic">Xử lý sự cố dữ liệu khẩn cấp trong các đợt Campaign lớn (NPI, BF, Tết...) giúp hệ thống vận hành thông suốt.</p>
+                        </div>
+                        <div class="section-card p-8 border-t-8 border-rose-500 bg-rose-50/30">
+                            <h3 class="text-xl font-bold mb-2">Phạt Nặng</h3>
+                            <p class="text-rose-700 font-bold text-lg mb-2">Trừ 0.5 - 1.0 vào tổng KPI</p>
+                            <p class="text-slate-500 text-sm italic">Rò rỉ dữ liệu nhạy cảm; Tự ý thay đổi logic báo cáo không qua Lead.</p>
+                        </div>
+                    </div>
+                </section>
+				
+				<section id="cong-cu">
+                    <div class="flex items-center gap-4 mb-8">
+                        <div class="w-12 h-1 bg-violet-500 rounded"></div>
+                        <h2 class="text-3xl font-bold uppercase font-heading text-[#1E3A8A]">7. Hệ thống công cụ (Ecosystem)</h2>
+                    </div>
+
+                    <div class="star-container">
+                        <svg class="star-line">
+                            <line x1="50%" y1="50%" x2="50%" y2="10%" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+                            <line x1="50%" y1="50%" x2="90%" y2="35%" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+                            <line x1="50%" y1="50%" x2="75%" y2="85%" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+                            <line x1="50%" y1="50%" x2="25%" y2="85%" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+                            <line x1="50%" y1="50%" x2="10%" y2="35%" stroke="#e2e8f0" stroke-width="2" stroke-dasharray="5,5" />
+                        </svg>
+
+                        <div class="central-hub">
+                            <div class="text-sky-500 font-bold text-xl">OA</div>
+                            <div class="text-slate-400 text-[10px] uppercase font-bold">Ecosystem</div>
+                        </div>
+
+                        <div class="star-item section-card p-5 border-b-4 border-orange-500" style="top: 10%; left: 50%;">
+                            <div class="tool-icon bg-orange-100 text-orange-600"><i class="fa-brands fa-git-alt"></i></div>
+                            <h3 class="font-bold text-sm mb-1">Git</h3>
+                            <p class="text-[11px] text-slate-500">Quản lý và lưu trữ version source code cho toàn bộ các báo cáo PBI, đảm bảo tính kế thừa và kiểm soát thay đổi.</p>
+                        </div>
+
+                        <div class="star-item section-card p-5 border-b-4 border-blue-500" style="top: 35%; left: 90%;">
+                            <div class="tool-icon bg-blue-100 text-blue-600"><i class="fa-solid fa-book"></i></div>
+                            <h3 class="font-bold text-sm mb-1">Lark Wiki</h3>
+                            <p class="text-[11px] text-slate-500">Thư viện tài liệu báo cáo, framework, quy trình và quy định nội bộ nhóm OA.</p>
+                        </div>
+
+                        <div class="star-item section-card p-5 border-b-4 border-orange-700" style="top: 85%; left: 75%;">
+                            <div class="tool-icon bg-orange-50 text-orange-800"><i class="fa-solid fa-database"></i></div>
+                            <h3 class="font-bold text-sm mb-1">dbt</h3>
+                            <p class="text-[11px] text-slate-500">Thực hiện Data Modeling, xây dựng cấu trúc dữ liệu chuẩn hóa phân tích.</p>
+                        </div>
+
+                        <div class="star-item section-card p-5 border-b-4 border-indigo-500" style="top: 85%; left: 25%;">
+                            <div class="tool-icon bg-indigo-100 text-indigo-600"><i class="fa-solid fa-file-signature"></i></div>
+                            <h3 class="font-bold text-sm mb-1">Lark Approvals</h3>
+                            <p class="text-[11px] text-slate-500">Nơi tiếp nhận yêu cầu hỗ trợ tập trung từ các phòng ban gửi về nhóm, đảm bảo mọi Task đều được phê duyệt minh bạch.</p>
+                        </div>
+
+                        <div class="star-item section-card p-5 border-b-4 border-teal-500" style="top: 35%; left: 10%;">
+                            <div class="tool-icon bg-teal-100 text-teal-600"><i class="fa-solid fa-table"></i></div>
+                            <h3 class="font-bold text-sm mb-1">Lark Base</h3>
+                            <p class="text-[11px] text-slate-500">Quản lý ticket, theo dõi tiến độ và là nguồn dữ liệu tính KPI hàng tháng.</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="text-center pb-10 pt-16">
+            <h2 class="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#1E3A8A] to-[#FF6B35] mb-4">
+                DATA DRIVEN 🔹 DECISION LED 🔹 ACTION ORIENTED
+            </h2>
+            <p class="text-gray-500 font-medium tracking-wide">KHỐI VẬN HÀNH | CELLPHONES</p>
+        </div>
+
+    </main>
+
+    <script>
+        // DỮ LIỆU KIẾN TRÚC (Từ new 9.html)
+        const archData = {
+            dbt: {
+                title: "HỆ THỐNG HÓA (Data Modeling)",
+                icon: "dbt.png", tool: "Data Build Tool",
+                desc: "dbt giúp chuyển đổi quy trình transform thủ công, rời rạc, dễ lỗi sang một quy trình tự động, có cấu trúc, minh bạch và dễ bảo trì. Đóng vai trò 'filter', biến đổi raw data trong DW thành các bảng và mô hình dữ liệu sẵn sàng để phân tích, có thể kiểm thử và tái sử dụng.",
+                points: ["Chuẩn hóa mọi định nghĩa chỉ số business bằng code.", "Tự động kiểm soát chất lượng, phát hiện sai lệch.", "Lưu vết lịch sử thay đổi và có thể cộng tác.", "Giảm lỗi do thao tác thủ công.", "Tự chủ khai thác dữ liệu không phụ thuộc."]
+            },
+            airflow: {
+                title: "ĐIỀU PHỐI LINH HOẠT (Orchestration)",
+                icon: "airflow.png", tool: "Apache Airflow",
+                desc: "Airflow cho phép định nghĩa toàn bộ quy trình điều phối pipeline ETL dưới dạng code Python (Workflow as Code), mang lại khả năng quản lý phiên bản, kiểm thử tự động, tăng cường khả năng phối hợp và vận hành hệ thống vượt trội. Đóng vai trò 'nhạc trưởng' điều phối hàng loạt luồng dữ liệu 24/7 một cách trơn tru, giảm sự can thiệp của con người.",
+                points: ["Đảm bảo dữ liệu luôn sẵn sàng cho báo cáo", "Lập lịch thông minh và quản lý phụ thuộc dữ liệu.", "Tự động khởi động lại và cảnh báo kỹ thuật khi có sự cố."]
+            },
+            n8n: {
+                title: "TỰ ĐỘNG HÓA (Automation)",
+                icon: "n8n.png", tool: "n8n Automation",
+                desc: "n8n giúp tạo workflow để kết nối các ứng dụng, dịch vụ và API mà không cần phải viết quá nhiều code. Đóng vai trò 'thực thi', kết nối dữ liệu tới hành động, giảm độ trễ trong việc vận hành hệ thống nhiều quy trình.",
+                points: ["Gửi cảnh báo và hành động tức thời khi có biến động.", "Tự động hóa các tác vụ lặp lại của nhân viên.", "Tạo ra vòng lặp phản hồi có thể kích hoạt một quy trình nghiệp vụ mới.", "Khả năng kết nối hơn 400 ứng dụng phổ biến"]
+            }
+        };
+
+        // Hàm render nội dung Kiến trúc
+        function renderArchContent(key) {
+			const data = archData[key];
+			const contentDiv = document.getElementById('arch-content');
+			let pointsHtml = data.points.map(p => `<li class="flex items-center gap-2 text-gray-700 mb-2"><span class="text-blue-500">✔</span> ${p}</li>`).join('');
+
+			// Logic mới: Phát hiện xem icon có phải là hình ảnh (.png, .jpg) không
+			let iconHtml = '';
+			if (data.icon && (data.icon.endsWith('.png') || data.icon.endsWith('.jpg') || data.icon.endsWith('.jpeg'))) {
+				// Là hình ảnh: Dùng thẻ <img> với kích thước phù hợp
+				iconHtml = `<img src="${data.icon}" alt="${data.tool} Icon" class="w-20 h-20 object-contain mb-2">`;
+			} else {
+				// Là biểu tượng cảm xúc: Dùng thẻ <span> với kích thước text-5xl ban đầu
+				iconHtml = `<span class="text-5xl mb-2">${data.icon}</span>`;
+			}
+
+			contentDiv.innerHTML = `
+			<div class="fade-in w-full max-w-2xl mx-auto flex flex-col md:flex-row gap-8 items-center">
+
+				<div class="relative group flex-shrink-0">
+					<!-- Glow -->
+					<div class="absolute -inset-1 bg-gradient-to-r from-[#0F9ED5] via-[#A02B93] to-[#E5C729] rounded-3xl blur-lg opacity-20 group-hover:opacity-40 transition duration-500"></div>
+					<!-- Icon Card -->
+					<div class="relative w-32 h-32 bg-gray-50 rounded-2xl flex flex-col items-center justify-center border border-gray-100 shadow-inner p-2">
+						${iconHtml}
+						<span class="text-[10px] font-bold text-gray-400 mt-1">
+							${data.tool}
+						</span>
+					</div>
+				</div>
+
+				<div class="flex-1 text-center md:text-left">
+					<h3 class="text-2xl font-bold text-[#1E3A8A] mb-3">
+						${data.title}
+					</h3>
+
+					<p class="text-gray-600 mb-4 italic">
+						"${data.desc}"
+					</p>
+
+					<ul class="inline-block md:block text-left">
+						${pointsHtml}
+					</ul>
+				</div>
+
+			</div>
+		`;
+		}
+		
+        // Navigation Script
+        document.querySelectorAll('.nav-item').forEach(button => {
+            button.addEventListener('click', () => {
+                // Xóa trạng thái active của tất cả các nút
+                document.querySelectorAll('.nav-item').forEach(btn => btn.classList.remove('active'));
+                // Thêm trạng thái active cho nút được click
+                button.classList.add('active');
+                
+                // Ẩn tất cả các nội dung section
+                document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
+                
+                // Hiển thị nội dung tương ứng
+                document.getElementById(button.getAttribute('data-target')).classList.remove('hidden');
+                
+                // Kích hoạt lại resize để đảm bảo Chart.js render đúng kích thước khi hiển thị từ trạng thái hidden
+                window.dispatchEvent(new Event('resize'));
+            });
+        });
+		
+		// Logic chuyển Tab Kiến trúc nội bộ
+        document.querySelectorAll('.arch-btn').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.arch-btn').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                renderArchContent(button.getAttribute('data-arch'));
+            });
+        });
+		
+		// Khởi tạo Chart và Nội dung mặc định
+        window.onload = () => {
+            renderArchContent('dbt'); // Khởi tạo tab dbt
+            initCharts();
+        };
+
+        // Chart.js Script từ bản gốc
+        function wrapLabel(label, maxChars = 16) {
+            if (label.length <= maxChars) return label;
+            const words = label.split(' ');
+            const lines = [];
+            let currentLine = '';
+            words.forEach(word => {
+                if ((currentLine + word).length > maxChars) {
+                    if (currentLine.trim() !== '') lines.push(currentLine.trim());
+                    currentLine = word + ' ';
+                } else {
+                    currentLine += word + ' ';
+                }
+            });
+            if (currentLine.trim() !== '') lines.push(currentLine.trim());
+            return lines;
+        }
+
+        Chart.defaults.font.family = "'Inter', sans-serif";
+        Chart.defaults.color = '#64748B';
+
+        const rawLabelsDonut = ["Thao tác dữ liệu thủ công", "Phân tích và ra Hành động"];
+        const labelsDonut = rawLabelsDonut.map(l => wrapLabel(l));
+
+        const ctxDonut = document.getElementById('timeShiftChart').getContext('2d');
+        new Chart(ctxDonut, {
+            type: 'bar',
+            data: {
+                labels: ['Before', 'After'],
+                datasets: [
+                    {
+                        label: 'Thao tác dữ liệu thủ công',
+                        data: [80, 20],
+                        backgroundColor: '#94A3B8',
+                        borderRadius: 4
+                    },
+                    {
+                        label: 'Phân tích và ra Hành động',
+                        data: [20, 80],
+                        backgroundColor: '#FF6B35',
+                        borderRadius: 4
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        stacked: true,
+                        max: 100,
+                        ticks: { callback: function(value) { return value + '%' } }
+                    },
+                    y: {
+                        stacked: true,
+                        ticks: { font: { weight: 'bold' } }
+                    }
+                },
+                plugins: {
+                    legend: { position: 'bottom' },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            },
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const rawLabelsRadar = [
+            "Quy trình VH chuẩn (SOP)",
+            "Làm chủ công nghệ & Data",
+            "Tư duy Quản trị Vận hành",
+            "Định hướng Giải pháp Thực thi",
+            "Năng lực Tự chủ hoàn toàn"
+        ];
+        const labelsRadar = rawLabelsRadar.map(l => wrapLabel(l));
+
+        const ctxRadar = document.getElementById('capabilityRadarChart').getContext('2d');
+        new Chart(ctxRadar, {
+            type: 'radar',
+            data: {
+                labels: labelsRadar,
+                datasets: [
+                    {
+                        label: 'Đội ngũ DA (Truyền thống)',
+                        data: [40, 60, 40, 35, 50],
+                        backgroundColor: 'rgba(148, 163, 184, 0.2)',
+                        borderColor: '#94A3B8',
+                        pointBackgroundColor: '#94A3B8',
+                        borderWidth: 2
+                    },
+                    {
+                        label: 'Đội ngũ OA (Mục tiêu)',
+                        data: [85, 90, 85, 80, 90],
+                        backgroundColor: 'rgba(0, 180, 216, 0.4)',
+                        borderColor: '#00B4D8',
+                        pointBackgroundColor: '#FF6B35',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: '#FF6B35',
+                        borderWidth: 3
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    r: {
+                        angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' },
+                        pointLabels: {
+                            color: '#E0F2FE',
+                            font: { size: 11, weight: '600' }
+                        },
+                        ticks: { display: false, min: 0, max: 100 }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#E0F2FE', font: { size: 12 } }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const item = tooltipItems[0];
+                                let label = item.chart.data.labels[item.dataIndex];
+                                if (Array.isArray(label)) {
+                                    return label.join(' ');
+                                } else {
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+		
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section');
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('opacity-100');
+                        entry.target.classList.remove('translate-y-10');
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                section.style.transition = "all 0.8s ease-out";
+                section.classList.add('translate-y-10', 'opacity-0');
+                observer.observe(section);
+            });
+        });
+    </script>
+</body>
+</html>
